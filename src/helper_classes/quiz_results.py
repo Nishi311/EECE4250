@@ -1,25 +1,25 @@
 
 class QuizResults(object):
     def __init__(self, answers):
+        self.attribute_weights = {}
+        self.update_attribute_weights(answers)
+        self.city_scores = []
 
-        self.answers = {}
-        self.update_answers(answers)
-        self.city_results = []
+    def return_city_scores(self):
+        return self.city_scores
 
-    def return_results(self):
-        return self.city_results
+    def return_attribute_weights(self):
+        return self.attribute_weights
 
-    def return_answers(self):
-        return self.answers
+    def set_city_scores(self, new_results):
+        self.city_scores = new_results
 
-    def set_results(self, new_results):
-        self.city_results = new_results
-
-    def update_answers(self, new_answers):
-        if isinstance(new_answers, dict):
-            self.answers = new_answers
+    def update_attribute_weights(self, new_weights):
+        if isinstance(new_weights, dict):
+            self.attribute_weights = new_weights
         else:
-            self.exit_with_error("quiz_results, __init__(): object given as new_answers is not of type dict.")
+            self.exit_with_error("quiz_results, update_attribute_weights(): object given as new_weights is not "
+                                 "of type dict.")
 
     @staticmethod
     def exit_with_error(error):
