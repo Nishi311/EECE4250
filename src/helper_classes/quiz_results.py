@@ -1,8 +1,12 @@
 
 class QuizResults(object):
-    def __init__(self, answers):
-        self.attribute_weights = {}
-        self.update_attribute_weights(answers)
+    def __init__(self, weights):
+        if isinstance(weights, dict):
+            self.attribute_weights = {}
+        else:
+            self.exit_with_error("quiz_results, __init__(): object given as answers is not of type dict.")
+
+        self.update_attribute_weights(weights)
         self.city_scores = []
 
     def return_city_scores(self):

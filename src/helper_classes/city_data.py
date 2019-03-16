@@ -1,8 +1,11 @@
 
 class CityData(object):
-    def __init__(self):
-        self.city_name = ""
-        self.attributes = {}
+    def __init__(self, city_name=None, attributes=None):
+        self.city_name = city_name if city_name else ""
+        if attributes and isinstance(attributes, dict):
+            self.attributes = attributes
+        else:
+            self.attributes = {}
 
     def retrieve_all_city_data(self):
         return self.attributes

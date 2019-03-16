@@ -1,5 +1,8 @@
 import sqlite3
-from ..helper_classes.quiz_results import QuizResults
+import sys
+import os
+sys.path.append(os.path.abspath('../helper_classes'))
+from helper_classes.quiz_results import QuizResults
 
 
 class AlgorithmRunner(object):
