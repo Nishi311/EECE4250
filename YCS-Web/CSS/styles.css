@@ -59,3 +59,16 @@
     background-color: black;
     margin: 6px 0;
  }
+
+ .user label {
+  display: inline-block;
+  float: left;
+  clear: left;
+  width: 75px;
+  text-align: left;
+ }
+
+ .user input {
+  display: inline-block;
+  float: left;
+ }
