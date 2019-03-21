@@ -29,7 +29,8 @@ class AlgorithmTester(unittest.TestCase):
         self.algorithm_runner.all_city_data = mock_city_data
         self.algorithm_runner.all_city_names = mock_city_data.keys()
 
-        expected_results = [("Los Angeles", 133), ("San Fransisco", 124), ("Boston", 90)]
+        expected_results = [("Los Angeles", 133, LA_data), ("San Fransisco", 124, SanFran_data),
+                            ("Boston", 90, Boston_data)]
         generated_results = self.algorithm_runner.compute_results(self.mock_quiz_results)
         self.assertEqual(generated_results, expected_results)
 
