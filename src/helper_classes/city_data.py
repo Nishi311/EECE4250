@@ -1,11 +1,16 @@
 
 class CityData(object):
-    def __init__(self, city_name=None, attributes=None):
+    def __init__(self, city_name=None, attribute_names=None, attribute_values=None):
         self.city_name = city_name if city_name else ""
-        if attributes and isinstance(attributes, dict):
-            self.attributes = attributes
-        else:
-            self.attributes = {}
+        self.attributes = {}
+
+        if attribute_names and attribute_values:
+            if len(attribute_names) == len(attribute_values):
+                for index, val in enumerate(attribute_names):
+                    self.attributes[val] = attribute_values[index]
+            else:
+                self.exit_with_error("Number of attribute names and number of attribute values given do NOT match")
+
 
     def retrieve_all_city_data(self):
         return self.attributes
