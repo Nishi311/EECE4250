@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>This is the home page!</title>
+    <link rel="stylesheet" href="CSS/styles.css">
+    <script src="Javascript/sideNav.js"></script>
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+</head>
+
+<body>
+    <div id="nav-placeholder">
+
+    </div>
+
+    <script>
+        $(function () {
+            $("#nav-placeholder").load("HTML/sideNav.html");
+        });
+    </script>
+
+    <div id="main">
+
+        <body>
+            <p>This is the home page. This page will contain links to other pages on the site.</p>
+            <button id="userButton">My Profile</button>
+            <button id="quizButton">Quiz</button>
+            <button id="dataButton">Data</button>
+
+            <script src="Javascript/index.js">
+
+            </script>
+        </body>
+    </div>
+</body>
+
+</html>
