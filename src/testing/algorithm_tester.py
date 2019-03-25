@@ -1,7 +1,7 @@
 import unittest
-from algorithm.algorithm import AlgorithmRunner
-from helper_classes.city_data import CityData
-from helper_classes.quiz_results import QuizResults
+from src.algorithm.algorithm import AlgorithmRunner
+from src.helper_classes.city_data import CityData
+from src.helper_classes.quiz_results import QuizResults
 
 
 class AlgorithmTester(unittest.TestCase):
@@ -46,8 +46,3 @@ class AlgorithmTester(unittest.TestCase):
         mock_quiz_results = QuizResults(mock_weights)
         generated_results = self.algorithm_runner.run_module(mock_quiz_results)
         self.assertTrue(generated_results)
-
-if __name__ == "__main__":
-    AlgorithmTester()
-    # AlgorithmTester.test_compute_results()
-    AlgorithmTester.test_query()

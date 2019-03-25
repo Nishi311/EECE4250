@@ -1,10 +1,13 @@
 
 class UserProfile(object):
-    def __init__(self):
-        self.username = ""
-        self.password = ""
-        self.email = ""
-        self.quiz_history = []
+    def __init__(self, username, password, email, quiz_history=None):
+        self.username = username
+        self.password = password
+        self.email = email
+        if quiz_history:
+            self.quiz_history = quiz_history
+        else:
+            self.quiz_history = []
 
     def get_credentials(self):
         return self.username, self.password
