@@ -1,0 +1,5 @@
+Database Categories:
+
+walkability: index score, 0 to 100, 100 being best
+transit: index score, 0 to 100, 100 being best
+pop_density:i 
