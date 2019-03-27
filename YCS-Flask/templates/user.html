@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>This is the user profile page!</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}">
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+</head>
+
+<body>
+    <div id="mySidenav" class="sidenav">
+        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+        <a href="http://localhost:5000/">Home</a>
+        <a href="http://localhost:5000/user">My Profile</a>
+        <a href="http://localhost:5000/data">Data</a>
+        <a href="http://localhost:5000/quiz">Quiz</a>
+    </div>
+    
+    <!-- Use any element to open the sidenav -->
+    <span class="hamburger" style="cursor: pointer; position: fixed;" onclick="openNav()">
+        <div></div>
+        <div></div>
+        <div></div>
+    </span>
+
+    <div id="main" class="user">
+        <FORM action="notworking.jsp" name="abc">
+
+
+            <script src="{{ url_for('static', filename='Javascript/user.js') }}"></script>
+
+            <label>Username:
+
+            </label>
+            <positiontextbox>
+                <input type="text" name="fname" value="username" id="name" disabled="true" />
+            </positiontextbox>
+            <input type=button value="Edit" id="nameBtn" onclick="validate('name', 'nameBtn')"><a></a>
+            <div class="spacer"></div><br>
+            <label>Password:
+
+            </label>
+            <input type="text" name="lname" value="password" id="pw" disabled="true" />
+            <input type=button value="Edit" id="pwBtn" onclick="validate('pw', 'pwBtn')"><a></a>
+            <div class="spacer"></div>
+            <br>
+            <label>Email:
+
+            </label>
+            <input type="text" name="email" value="email" id="email" disabled="true" />
+            <input type=button value="Edit" id="emailBtn" onclick="validate('email', 'emailBtn')"><a></a>
+            <div class="spacer"></div>
+            <br>
+            <div class="spacer"></div><br>
+
+        </FORM>
+    </div>
+
+    <script src="{{ url_for('static', filename='Javascript/sideNav.js') }}"></script>
+</body>
+
+</html>
