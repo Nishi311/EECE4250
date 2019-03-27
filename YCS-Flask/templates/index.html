@@ -1,41 +1,9 @@
-<!doctype html>
-<html>
+{% extends "base.html" %}
+{% block content %}
+<p>This is the home page. This page will contain links to other pages on the site.</p>
+<button id="userButton">My Profile</button>
+<button id="quizButton">Quiz</button>
+<button id="dataButton">Data</button>
 
-<head>
-    <title>This is the home page!</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}">
-    <script type="text/javascript" src="https://code.jquery.com/jquery-1.10.2.js"></script>
-</head>
-
-<body>
-
-    <div id="mySidenav" class="sidenav">
-        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-        <a href="http://localhost:5000/">Home</a>
-        <a href="http://localhost:5000/user">My Profile</a>
-        <a href="http://localhost:5000/data">Data</a>
-        <a href="http://localhost:5000/quiz">Quiz</a>
-    </div>
-    
-    <!-- Use any element to open the sidenav -->
-    <span class="hamburger" style="cursor: pointer; position: fixed;" onclick="openNav()">
-        <div></div>
-        <div></div>
-        <div></div>
-    </span>
-
-    <div id="main">
-
-        <body>
-            <p>This is the home page. This page will contain links to other pages on the site.</p>
-            <button id="userButton">My Profile</button>
-            <button id="quizButton">Quiz</button>
-            <button id="dataButton">Data</button>
-
-            <script src="{{ url_for('static', filename='Javascript/index.js') }}"></script>
-            <script src="{{ url_for('static', filename='Javascript/sideNav.js') }}"></script>
-        </body>
-    </div>
-</body>
-
-</html>
+<script src="/static/Javascript/index.js"></script>
+{% endblock %}

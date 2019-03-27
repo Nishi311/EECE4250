@@ -1,70 +1,42 @@
-<!DOCTYPE html>
-<html lang="en-US">
+{% extends "base.html" %}
+{% block content %}
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/modal.css') }}">
-    <script src="/Javascript/submitLogin.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="/static/CSS/modal.css">
 </head>
 
-<body>
+<h2>Modal Login Form</h2>
+<button onclick="document.getElementById('id01').style.display='block'" style="width:auto;">Login</button>
 
-    <h2>Modal Login Form</h2>
+<div id="id01" class="modal">
 
-    <div id="mySidenav" class="sidenav">
-        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-        <a href="http://localhost:5000/">Home</a>
-        <a href="http://localhost:5000/user">My Profile</a>
-        <a href="http://localhost:5000/data">Data</a>
-        <a href="http://localhost:5000/quiz">Quiz</a>
-    </div>
-    
-    <!-- Use any element to open the sidenav -->
-    <span class="hamburger" style="cursor: pointer; position: fixed;" onclick="openNav()">
-        <div></div>
-        <div></div>
-        <div></div>
-    </span>
+    <form class="modal-content animate" id="loginForm" name="loginForm" action="http://localhost:5000/login"
+        enctype="application/json" method="POST">
 
-    <button onclick="document.getElementById('id01').style.display='block'" style="width:auto;">Login</button>
+        <div class="container">
+            <label for="username"><b>Username</b></label>
+            <input type="text" placeholder="Enter Username" name="username" value="{{ request.form.username }}"
+                required>
 
-    <div id="id01" class="modal">
+            <label for="password"><b>Password</b></label>
+            <input type="password" placeholder="Enter Password" name="password" value="{{ request.form.password }}"
+                required>
 
-        <form class="modal-content animate" id="loginForm" name="loginForm" action="http://localhost:5000/login" enctype="application/json" method="POST">
-            <div class="imgcontainer">
-                <span onclick="document.getElementById('id01').style.display='none'" class="close"
-                    title="Close Modal">&times;</span>
-                <img src="img_avatar2.png" alt="Avatar" class="avatar">
-            </div>
-
-            <div class="container">
-                <label for="username"><b>Username</b></label>
-                <input type="text" placeholder="Enter Username" name="username" required>
-
-                <label for="password"><b>Password</b></label>
-                <input type="password" placeholder="Enter Password" name="password" required>
-
-                <button type="submit">Login</button>
-                <!-- <label>
+            <button type="submit">Login</button>
+            <!-- <label>
                     <input type="checkbox" checked="checked" name="remember"> Remember me
                 </label> -->
-            </div>
+        </div>
 
-            <div class="container" style="background-color:#f1f1f1">
-                <button type="button" onclick="document.getElementById('id01').style.display='none'"
-                    class="cancelbtn">Cancel</button>
-                <span class="psw">Forgot <a href="#">password?</a></span>
-            </div>
-        </form>
-    </div>
+        <div class="container" style="background-color:#f1f1f1">
+            <button type="button" onclick="document.getElementById('id01').style.display='none'"
+                class="cancelbtn">Cancel</button>
+            <span class="psw">Forgot <a href="#">password?</a></span>
+        </div>
+    </form>
+</div>
 
-    <script src="/Javascript/modal.js"></script>
-    <script src="/Javascript/submitLogin.js"></script>
-
-    <script src="{{ url_for('static', filename='Javascript/sideNav.js') }}"></script>
-
-</body>
-
-</html>
+<script src="/static/Javascript/modal.js"></script>
+{% endblock %}

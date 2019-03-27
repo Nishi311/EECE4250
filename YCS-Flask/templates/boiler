@@ -1,4 +1,4 @@
 {% extends "base.html" %}
 {% block content %}
-<p>This will be the data page</p>
+
 {% endblock %}
