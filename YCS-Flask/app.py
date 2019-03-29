@@ -9,6 +9,17 @@ app = Flask(__name__)
 app.config["DEBUG"] = True
 app.secret_key = 'cowabunga'
 
+def login_required(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if 'logged_in' in session:
+            return f(*args, **kwargs)
+        else:
+            flash('You need to login first!')
+            redirect(url_for('home'))
+    
+    return wrap
+
 test_db = defaultdict(lambda: '')
 test_db['username'] = 'test'
 test_db['password'] = 'testword'
@@ -31,6 +42,7 @@ def quiz():
 
 
 @app.route('/user')
+@login_required
 def user():
     return render_template("user.html")
 
@@ -39,26 +51,38 @@ def user():
 def login():
     error = None
     if request.method == 'POST':
-        username = request.form['username']
+        email = request.form['email']
         password = request.form['password']
 
-        if username == test_db['username'] and password == test_db['password']:
+        if email == test_db['email'] and password == test_db['password']:
             session['logged_in'] = True
             flash('Login successful')
             return redirect(url_for('home'))
 
         else:
             error = 'Invalid credentials! Please try again.'
-
-    return render_template('login.html', error=error)
-
+            flash('Invalid credentials')
+            
+    return render_template('index.html', error=error)
 
 @app.route('/logout')
+@login_required
 def logout():
-    session.pop['logged_in', None]
+    session.pop('logged_in', None)
     flash('Logout successful')
     return redirect(url_for('home'))
 
+@app.route('/create', methods = ['GET', 'POST'])
+def create():
+    if request.method == 'POST':
+        test_db[request.form['username']] = request.form['password']
+        test_db[request.form['email']] = request.form['password']
+
+    return render_template('index.html')
+
+@app.route('/test')
+def test():
+    return render_template('test.html')
 
 @app.errorhandler(404)
 def not_found(error=None):

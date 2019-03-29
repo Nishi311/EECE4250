@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Create your profile!</h2>
+
+<form id="createForm" name="createForm" action="" method="POST">
+    <label>Please enter your desired username:</label>
+    <input type="text" placeholder="username" name="username" value="{{ request.form.username }}" required>
+    <br>
+    <label>Please create your password:</label>
+    <input type="password" placeholder="password" name="password" value="{{ request.form.password }}" required>
+    <br>
+    <label>Please enter an email for your account:</label>
+    <input type="text" placeholder="example@email.com" name="email" value="{{ request.form.email }}" required>
+    <br>
+    <button type="submit">Create Account</button>
+</form>
+{% endblock %}

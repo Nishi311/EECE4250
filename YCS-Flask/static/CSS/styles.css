@@ -60,15 +60,39 @@
     margin: 6px 0;
  }
 
+.user {
+  padding-top: 10px;
+}
+
  .user label {
   display: inline-block;
   float: left;
   clear: left;
   width: 75px;
   text-align: left;
+  padding: 1px;
+  margin-top: 10px;
  }
 
  .user input {
   display: inline-block;
   float: left;
+  margin-left: 25px;
+  margin-top: 10px;
+  padding: 1px;
  }
+
+ .user input[type=button] {
+   margin-left: 10px
+ }
+
+
+.quiz input {
+   display: inline-block;
+}
+
+.quiz label {
+  display: inline-block;
+  width: 175px;
+  text-align: left;
+}
