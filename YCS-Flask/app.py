@@ -50,8 +50,6 @@ def data():
         cursor = conn.cursor(pymysql.cursors.DictCursor)
         cursor.execute("SELECT * FROM city_index")
         rows = cursor.fetchall()
-        for row in rows:
-            print(row['city_name'])
     except Exception as e:
         print(e)
     finally:
