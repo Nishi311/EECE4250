@@ -5,6 +5,11 @@ import pymysql
 from flask import Flask, jsonify, request, render_template, session, redirect, url_for, flash
 from functools import wraps
 
+from src.helper_classes.quiz_results import QuizResults
+from src.algorithm.algorithm import AlgorithmRunner
+
+import webbrowser
+
 app = Flask(__name__)
 app.config["DEBUG"] = True
 app.secret_key = 'cowabunga'
@@ -80,6 +85,25 @@ def create():
 
     return render_template('index.html')
 
+
+@app.route('/handle_quiz_submission', methods=['GET', 'POST'])
+def handle_quiz_submissions():
+    test = request
+    attribute_list = request.args.get('attribute_list[]').split(", ")
+    weight_list = request.args.get('weight_list[]').split(", ")
+
+    if len(attribute_list) == len(weight_list):
+        combinded_dict = {}
+
+        for index in range(len(attribute_list)):
+            combinded_dict[attribute_list[index]] = weight_list[index]
+
+        raw_quiz_results = QuizResults(combinded_dict)
+
+        algo_runner = AlgorithmRunner()
+        processed_quiz_results = algo_runner.run_module(raw_quiz_results)
+
+
 @app.route('/test')
 def test():
     return render_template('test.html')
@@ -96,5 +120,12 @@ def not_found(error=None):
     return resp
 
 
-if __name__ == "__main__":
-    app.run()
+class BasicLauncher(object):
+    @staticmethod
+    def run_module():
+        webbrowser.get('windows-default').open("http://127.0.0.1:5000/")
+        app.run(host='127.0.0.1')
+
+# if __name__ == "__main__":
+#     webbrowser.get('windows-default').open("http://127.0.0.1:5000/")
+#     app.run(host='127.0.0.1')
