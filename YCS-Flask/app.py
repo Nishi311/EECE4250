@@ -1,13 +1,24 @@
 from collections import defaultdict
+from functools import wraps
+
+import pymysql
+from flask import (Flask, flash, jsonify, redirect, render_template, request,
+                   session, url_for)
 from flaskext.mysql import MySQL
 from werkzeug.security import generate_password_hash
-import pymysql
-from flask import Flask, jsonify, request, render_template, session, redirect, url_for, flash
-from functools import wraps
+
+mysql = MySQL()
 
 app = Flask(__name__)
 app.config["DEBUG"] = True
 app.secret_key = 'cowabunga'
+
+app.config['MYSQL_DATABASE_USER'] = "MeanderingArma"
+app.config['MYSQL_DATABASE_PASSWORD'] = "Dillos1999"
+app.config['MYSQL_DATABASE_DB'] = "YCS"
+app.config['MYSQL_DATABASE_HOST'] = "yuppie-city-simulator-db.cohu57vlr7rd.us-east-2.rds.amazonaws.com"
+mysql.init_app(app)
+
 
 def login_required(f):
     @wraps(f)
@@ -17,8 +28,9 @@ def login_required(f):
         else:
             flash('You need to login first!')
             redirect(url_for('home'))
-    
+
     return wrap
+
 
 test_db = defaultdict(lambda: '')
 test_db['username'] = 'test'
@@ -33,7 +45,19 @@ def home():
 
 @app.route('/data')
 def data():
-    return render_template("data.html")
+    try:
+        conn = mysql.connect()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        cursor.execute("SELECT * FROM city_index")
+        rows = cursor.fetchall()
+        for row in rows:
+            print(row['city_name'])
+    except Exception as e:
+        print(e)
+    finally:
+        cursor.close()
+        conn.close()
+    return render_template("data.html", data=rows)
 
 
 @app.route('/quiz')
@@ -62,8 +86,9 @@ def login():
         else:
             error = 'Invalid credentials! Please try again.'
             flash('Invalid credentials')
-            
+
     return render_template('index.html', error=error)
+
 
 @app.route('/logout')
 @login_required
@@ -72,7 +97,8 @@ def logout():
     flash('Logout successful')
     return redirect(url_for('home'))
 
-@app.route('/create', methods = ['GET', 'POST'])
+
+@app.route('/create', methods=['GET', 'POST'])
 def create():
     if request.method == 'POST':
         test_db[request.form['username']] = request.form['password']
@@ -80,9 +106,11 @@ def create():
 
     return render_template('index.html')
 
+
 @app.route('/test')
 def test():
     return render_template('test.html')
+
 
 @app.errorhandler(404)
 def not_found(error=None):
