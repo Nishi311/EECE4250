@@ -1,7 +1,9 @@
 import unittest
 from src.controller.Controller import Controller
+from src.helper_classes.quiz_results import QuizResults
+from src.helper_classes.city_data import CityData
 
-
+from src.algorithm.algorithm import AlgorithmRunner
 class ControllerTester(unittest.TestCase):
 
     def setup(self):
@@ -27,3 +29,37 @@ class ControllerTester(unittest.TestCase):
 
         returned_object = self.controller.query_for_specific_user_data(user_id)
         self.assertEqual(username, returned_object.username)
+
+    def test_quiz_insert(self):
+        self.setup()
+
+        mock_weights = {"walkability": 1, "transit": 2, "density": 3, "bikeability": 4,
+                        "size": 5, "prop_crime": 6, "violent_crime": 7, "pollution": 8,
+                        "traffic": 9, "sunshine": 10}
+
+        mock_quiz_results = QuizResults(mock_weights)
+
+        attributes = ["walkability", "transit", "density", "bikeability", "size", "prop_crime",
+                      "violent_crime", "pollution", "traffic", "sunshine"]
+
+        LA_attribute_scores = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        LA_data = CityData("Los Angeles", attributes, LA_attribute_scores)
+
+        SanFran_attribute_scores = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+        SanFran_data = CityData("San Fransisco", attributes, SanFran_attribute_scores)
+
+        Boston_attribute_scores = [3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
+        Boston_data = CityData("Boston", attributes, Boston_attribute_scores)
+
+        mock_city_data = {"Los Angeles": LA_data, "San Francisco": SanFran_data, "Boston": Boston_data}
+        algorithm_runner = AlgorithmRunner()
+        algorithm_runner.all_city_data = mock_city_data
+        algorithm_runner.all_city_names = mock_city_data.keys()
+
+        mock_quiz_results.update_city_scores(algorithm_runner.compute_results(mock_quiz_results))
+        mock_quiz_results.update_user_id(999999)
+        mock_quiz_results.update_quiz_id(999999)
+
+
+        self.controller.store_in_database("results", mock_quiz_results.return_storage_parameter_names(),
+                                          mock_quiz_results.return_storage_parameter_values())

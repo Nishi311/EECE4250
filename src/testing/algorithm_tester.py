@@ -41,7 +41,7 @@ class AlgorithmTester(unittest.TestCase):
     def test_workflow(self):
         self.setup()
         mock_weights = {"walkability": 1, "transit": 10, "pop_density": 5, "bikeability": 1,
-                        "metro_population": 10, "prop_crime": 5, "violent_crime": 1, "air_pollution": 10}
+                        "size": 10, "prop_crime": 5, "violent_crime": 1, "air_pollution": 10}
         mock_quiz_results = QuizResults(mock_weights)
         generated_results = self.algorithm_runner.run_module(mock_quiz_results)
         self.assertTrue(generated_results)

@@ -1,8 +1,9 @@
 
 class QuizResults(object):
-    def __init__(self, weights, id=None):
+    def __init__(self, weights):
 
-        self.quiz_id = id
+        self.quiz_id = None
+        self.user_id = None
 
         if isinstance(weights, dict):
             self.attribute_weights = {}
@@ -18,11 +19,14 @@ class QuizResults(object):
     def return_city_scores(self):
         return self.city_scores
 
-    def return_attribute_weights(self):
+    def return_calculation_attribute_set(self):
         return self.attribute_weights
 
-    def update_quiz_id(self, new_id):
-        self.quiz_id = new_id
+    def update_quiz_id(self, new_quiz_id):
+        self.quiz_id = new_quiz_id
+
+    def update_user_id(self, new_user_id):
+        self.user_id = new_user_id
 
     def update_city_scores(self, city_string):
         if city_string:
@@ -31,7 +35,7 @@ class QuizResults(object):
             for city in individual_city_list:
                 city_name = city.split(":")[0]
                 city_score = float(city.split(":")[1])
-                city_score_list.append({city_name, city_score})
+                city_score_list.append([city_name, city_score])
 
             self.city_scores = city_score_list
         else:
@@ -44,20 +48,28 @@ class QuizResults(object):
             self.exit_with_error("quiz_results, update_attribute_weights(): object given as new_weights is not "
                                  "of type dict.")
 
-    def print_weights(self):
-        return_string = ""
-        for name, value in self.attribute_weights.items():
-            return_string += "{0}:{1}".format(name, value)
+    def return_storage_parameter_names(self):
+        return_list = ["user_id", "quiz_id"]
 
-        return_string = return_string.rsplit(", ")[0]
-        return return_string
+        for name, value in self.attribute_weights.items():
+            return_list.append(name)
+
+        return_list.append("scores")
+        return return_list
+
+    def return_storage_parameter_values(self):
+        return_list = [self.user_id, self.quiz_id]
+        for name, value in self.attribute_weights.items():
+            return_list.append(value)
+        return_list.append(self.print_cities())
+        return return_list
 
     def print_cities(self):
         return_string = ""
         for city_bundle in self.city_scores:
-            return_string += "{0}:{1}".format(city_bundle[0], city_bundle[1])
+            return_string += "{0}:{1}, ".format(city_bundle[0], city_bundle[1])
 
-        return_string = return_string.rsplit(", ")[0]
+        return_string = return_string.rsplit(", ", 1)[0]
         return return_string
 
     @staticmethod

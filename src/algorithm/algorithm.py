@@ -31,7 +31,7 @@ class AlgorithmRunner(object):
                 total_city_scores[city_name] = 0
 
             # Get the list of all the attributes that the quiz used.
-            attribute_weights = current_quiz.return_attribute_weights()
+            attribute_weights = current_quiz.return_calculation_attribute_set()
 
             for attribute_name in attribute_weights.keys():
                 # For each attribute used in the quiz, get the dict with every city's score for that attribute

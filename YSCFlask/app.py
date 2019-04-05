@@ -103,7 +103,7 @@ def handle_quiz_submissions():
 
         algo_runner = AlgorithmRunner()
         processed_quiz_results = algo_runner.run_module(raw_quiz_results)
-
+        return jsonify(processed_quiz_results.print_cities())
 
 @app.route('/test')
 def test():

@@ -184,6 +184,26 @@ class Controller(object):
 
         return quiz_results_object
 
+    @staticmethod
+    def store_in_database(table_name, insert_key_names, insert_values):
+        formatted_key_string = "({0})".format(", ".join(insert_key_names))
+        formatted_value_string = "("
+
+        for value in insert_values:
+            formatted_value_string += "\'{0}\', ".format(value)
+        formatted_value_string = formatted_value_string.rsplit(", ", 1)[0] + ")"
+
+
+        connection = mysql.connector.connect(host="yuppie-city-simulator-db.cohu57vlr7rd.us-east-2.rds.amazonaws.com",
+                                             user="MeanderingArma",
+                                             passwd="Dillos1999",
+                                             database="YCS")
+
+        cursor = connection.cursor()
+        test = "INSERT INTO {0} {1} VALUES {2}".format(table_name, formatted_key_string, formatted_value_string)
+        print(test)
+        cursor.execute("INSERT INTO {0} {1} VALUES {2}".format(table_name, formatted_key_string, formatted_value_string))
+
     def store_new_quiz(self, user_id, quiz_results):
         pass
 
