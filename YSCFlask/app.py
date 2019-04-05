@@ -26,7 +26,8 @@ def login_required(f):
     return wrap
 
 test_db = defaultdict(lambda: '')
-test_db['username'] = 'test'
+test_db['user_id'] = '10000'
+test_db['username'] = 'Yeezy'
 test_db['password'] = 'testword'
 test_db['email'] = 'test@email.com'
 
@@ -96,7 +97,7 @@ def handle_quiz_submissions():
         combinded_dict = {}
 
         for index in range(len(attribute_list)):
-            combinded_dict[attribute_list[index]] = weight_list[index]
+            combinded_dict[attribute_list[index]] = float(weight_list[index])
 
         raw_quiz_results = QuizResults(combinded_dict)
 

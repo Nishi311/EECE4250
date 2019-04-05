@@ -22,7 +22,8 @@ class ControllerTester(unittest.TestCase):
 
     def test_specific_user_query(self):
         self.setup()
-        username = "MeanderingArmadillos"
+        user_id = 10000
+        username = "Yeezy"
 
-        returned_object = self.controller.query_for_specific_user_data(username)
-        self.assertEqual(username, returned_object.city_name)
+        returned_object = self.controller.query_for_specific_user_data(user_id)
+        self.assertEqual(username, returned_object.username)

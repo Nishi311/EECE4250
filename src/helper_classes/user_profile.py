@@ -1,6 +1,7 @@
 
 class UserProfile(object):
-    def __init__(self, username, password, email, quiz_history=None):
+    def __init__(self, user_id, username, password, email, quiz_history=None):
+        self.user_id = user_id
         self.username = username
         self.password = password
         self.email = email

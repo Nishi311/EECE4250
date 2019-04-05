@@ -25,12 +25,11 @@ class AlgorithmTester(unittest.TestCase):
         Boston_attribute_scores = [10, 5, 6]
         Boston_data = CityData("Boston", attributes, Boston_attribute_scores)
 
-        mock_city_data = {"Los Angeles": LA_data, "San Fransisco": SanFran_data, "Boston": Boston_data}
+        mock_city_data = {"Los Angeles": LA_data, "San Francisco": SanFran_data, "Boston": Boston_data}
         self.algorithm_runner.all_city_data = mock_city_data
         self.algorithm_runner.all_city_names = mock_city_data.keys()
 
-        expected_results = [("Los Angeles", 133, LA_data), ("San Fransisco", 124, SanFran_data),
-                            ("Boston", 90, Boston_data)]
+        expected_results = "Los Angeles:133, San Francisco:124, Boston:90"
         generated_results = self.algorithm_runner.compute_results(self.mock_quiz_results)
         self.assertEqual(generated_results, expected_results)
 
