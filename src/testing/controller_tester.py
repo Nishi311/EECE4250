@@ -33,14 +33,14 @@ class ControllerTester(unittest.TestCase):
     def test_quiz_insert(self):
         self.setup()
 
-        mock_weights = {"walkability": 1, "transit": 2, "density": 3, "bikeability": 4,
-                        "size": 5, "prop_crime": 6, "violent_crime": 7, "pollution": 8,
-                        "traffic": 9, "sunshine": 10}
+        mock_weights = {"walkability": 1, "bikeability": 2, "transit": 3, "traffic": 4,
+                        "metro_pop": 5, "pop_density": 6, "prop_crime": 7, "violent_crime": 8,
+                        "air_pollution": 9, "sunshine": 10}
 
         mock_quiz_results = QuizResults(mock_weights)
 
-        attributes = ["walkability", "transit", "density", "bikeability", "size", "prop_crime",
-                      "violent_crime", "pollution", "traffic", "sunshine"]
+        attributes = ["walkability", "bikeability", "transit", "traffic", "metro_pop", "pop_density",
+                      "prop_crime", "violent_crime", "air_pollution", "sunshine"]
 
         LA_attribute_scores = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
         LA_data = CityData("Los Angeles", attributes, LA_attribute_scores)
@@ -57,8 +57,8 @@ class ControllerTester(unittest.TestCase):
         algorithm_runner.all_city_names = mock_city_data.keys()
 
         mock_quiz_results.update_city_scores(algorithm_runner.compute_results(mock_quiz_results))
-        mock_quiz_results.update_user_id(999999)
-        mock_quiz_results.update_quiz_id(999999)
+        mock_quiz_results.update_user_id(15)
+        mock_quiz_results.update_quiz_id(16)
 
 
         self.controller.store_in_database("results", mock_quiz_results.return_storage_parameter_names(),
