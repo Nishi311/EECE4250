@@ -71,12 +71,14 @@ def login():
             
     return render_template('index.html', error=error)
 
+
 @app.route('/logout')
 @login_required
 def logout():
     session.pop('logged_in', None)
     flash('Logout successful')
     return redirect(url_for('home'))
+
 
 @app.route('/create', methods = ['GET', 'POST'])
 def create():
@@ -89,25 +91,29 @@ def create():
 
 @app.route('/handle_quiz_submission', methods=['GET', 'POST'])
 def handle_quiz_submissions():
-    test = request
-    attribute_list = request.args.get('attribute_list[]').split(", ")
-    weight_list = request.args.get('weight_list[]').split(", ")
+    test = request.json
+    print(test)
+    attribute_list = "walkability, " + "bikeability, " + "transit, "+ "traffic, " + "metro_pop, " + "pop_density, " + "prop_crime, " + "violent_crime, " + "air_pollution, " +  "sunshine"
+    attribute_list = attribute_list.split(", ")
+    weight_list = request.json.split(", ")
 
     if len(attribute_list) == len(weight_list):
-        combinded_dict = {}
+        combined_dict = {}
 
         for index in range(len(attribute_list)):
-            combinded_dict[attribute_list[index]] = float(weight_list[index])
+            combined_dict[attribute_list[index]] = float(weight_list[index])
 
-        raw_quiz_results = QuizResults(combinded_dict)
+        raw_quiz_results = QuizResults(combined_dict)
 
         algo_runner = AlgorithmRunner()
         processed_quiz_results = algo_runner.run_module(raw_quiz_results)
         return jsonify(processed_quiz_results.print_cities())
 
+
 @app.route('/test')
 def test():
     return render_template('test.html')
+
 
 @app.errorhandler(404)
 def not_found(error=None):

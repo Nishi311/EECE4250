@@ -1,7 +1,5 @@
-
-$(document).on("click", "#submit_quiz", function() {
-    var attribute_list = "walkability, " + "bikeability, " + "transit, "+ "traffic, " + "metro_pop, " + "pop_density, " +
-                         "prop_crime, " + "violent_crime, " + "air_pollution, " +  "sunshine";
+$("#quizForm").on("submit", function(event){
+   event.preventDefault(); //this prevents the form to use default submit
 
     var weight_list =  $("#walkability").val() + ", " +
                        $("#bikeability").val() + ", " +
@@ -14,11 +12,14 @@ $(document).on("click", "#submit_quiz", function() {
                        $("#air_pollution").val() + ", " +
                        $("#sunshine").val();
 
-    var list_of_cities = []
-    $.get("/handle_quiz_submission",{'attribute_list[]': attribute_list, 'weight_list[]': weight_list}, function(returned_data){
-          var test = returned_data;
-          var test2 = "Doing this for the break point"
-
-    });
-
+   $.ajax({
+        method: "POST",
+        url: $(this).attr("action"), //this will use the form's action attribute
+        data: JSON.stringify(weight_list, null, '\t'),
+        contentType: 'application/json;charset=UTF-8',
+        success: function(responseData){
+        //do something here with responseData
+            console.log(responseData)
+     }
+   });
 });
