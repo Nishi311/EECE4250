@@ -119,8 +119,23 @@ def quiz_results():
 
             algo_runner = AlgorithmRunner()
             processed_quiz_results = algo_runner.run_module(raw_quiz_results)
-            # TODO: Ask Nick about implement methodology to actually get the current user ID.
+            # TODO: Ask nick about how to get the actual user ID
             controller.store_new_quiz(99999, processed_quiz_results)
+
+            # print(processed_quiz_results.print_cities())
+            city_scores_dict = defaultdict()
+            city_names = []
+            for city_tuple in processed_quiz_results.return_city_scores():
+                city_scores_dict[city_tuple[0]] = int(city_tuple[1])
+                city_names.append(city_tuple[0])
+
+            print(city_names)
+
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+            cursor.execute("SELECT * FROM city_index WHERE city_name IN ('{0}','{1}','{2}','{3}','{4}')".format(city_names[0], city_names[1], city_names[2], city_names[3], city_names[4]))
+            rows = cursor.fetchall()
+            print(rows)
 
             # return jsonify(processed_quiz_results.print_cities())
         return render_template('view_results.html', scores=city_scores_dict, data=rows)
