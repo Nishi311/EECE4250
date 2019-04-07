@@ -1,4 +1,4 @@
-from YSCFlask.app import BasicLauncher
+from Flask.app import BasicLauncher
 
 
 if __name__ == "__main__":
