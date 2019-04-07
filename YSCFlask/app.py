@@ -2,7 +2,7 @@ from collections import defaultdict
 from flaskext.mysql import MySQL
 from werkzeug.security import generate_password_hash
 import pymysql
-from flask import Flask, jsonify, request, render_template, session, redirect, url_for, flash
+from flask import Flask, jsonify, request, render_template, session, redirect, url_for, flash, json
 from functools import wraps
 
 from src.helper_classes.quiz_results import QuizResults
@@ -10,9 +10,17 @@ from src.algorithm.algorithm import AlgorithmRunner
 
 import webbrowser
 
+mysql = MySQL()
+
 app = Flask(__name__)
 app.config["DEBUG"] = True
 app.secret_key = 'cowabunga'
+
+app.config['MYSQL_DATABASE_USER'] = "MeanderingArma"
+app.config['MYSQL_DATABASE_PASSWORD'] = "Dillos1999"
+app.config['MYSQL_DATABASE_DB'] = "YCS"
+app.config['MYSQL_DATABASE_HOST'] = "yuppie-city-simulator-db.cohu57vlr7rd.us-east-2.rds.amazonaws.com"
+mysql.init_app(app)
 
 def login_required(f):
     @wraps(f)
@@ -88,26 +96,45 @@ def create():
 
     return render_template('index.html')
 
+@app.route('/quizResults', methods=['GET', 'POST'])
+def quiz_results():
+    if request.method == 'POST':
+        weight_list = []
+        attribute_list = "walkability, " + "bikeability, " + "transit, "+ "traffic, " + "metro_pop, " + "pop_density, " + "prop_crime, " + "violent_crime, " + "air_pollution, " +  "sunshine"
+        attribute_list = attribute_list.split(", ")
+        print(attribute_list)
+        for factor in attribute_list:
+            weight_list.append(request.form[factor])
+        # weight_list = request.json.split(", ")
+        print(weight_list)
 
-@app.route('/handle_quiz_submission', methods=['GET', 'POST'])
-def handle_quiz_submissions():
-    test = request.json
-    print(test)
-    attribute_list = "walkability, " + "bikeability, " + "transit, "+ "traffic, " + "metro_pop, " + "pop_density, " + "prop_crime, " + "violent_crime, " + "air_pollution, " +  "sunshine"
-    attribute_list = attribute_list.split(", ")
-    weight_list = request.json.split(", ")
+        if len(attribute_list) == len(weight_list):
+            combined_dict = {}
 
-    if len(attribute_list) == len(weight_list):
-        combined_dict = {}
+            for index in range(len(attribute_list)):
+                combined_dict[attribute_list[index]] = float(weight_list[index])
 
-        for index in range(len(attribute_list)):
-            combined_dict[attribute_list[index]] = float(weight_list[index])
+            raw_quiz_results = QuizResults(combined_dict)
 
-        raw_quiz_results = QuizResults(combined_dict)
+            algo_runner = AlgorithmRunner()
+            processed_quiz_results = algo_runner.run_module(raw_quiz_results)
+            # print(processed_quiz_results.print_cities())
+            city_scores_dict = defaultdict()
+            city_names = []
+            for city_tuple in processed_quiz_results.return_city_scores():
+                city_scores_dict[city_tuple[0]] = int(city_tuple[1])
+                city_names.append(city_tuple[0])
+            
+            # print(city_names)
 
-        algo_runner = AlgorithmRunner()
-        processed_quiz_results = algo_runner.run_module(raw_quiz_results)
-        return jsonify(processed_quiz_results.print_cities())
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+            cursor.execute("SELECT * FROM city_index WHERE city_name IN ('{0}','{1}','{2}','{3}','{4}')".format(city_names[0], city_names[1], city_names[2], city_names[3], city_names[4]))
+            rows = cursor.fetchall()
+            print(rows)
+
+            # return jsonify(processed_quiz_results.print_cities())
+        return render_template('view_results.html', scores=city_scores_dict, data=rows)
 
 
 @app.route('/test')
