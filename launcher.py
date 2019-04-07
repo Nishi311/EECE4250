@@ -1,4 +1,4 @@
-from Flask.app import BasicLauncher
+from app import BasicLauncher
 
 
 if __name__ == "__main__":
