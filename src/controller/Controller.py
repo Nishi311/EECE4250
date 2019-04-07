@@ -135,38 +135,45 @@ class Controller(object):
     def query_for_specific_user_all_quizzes(self, user_id):
         results_table_name = "results"
 
-        quiz_attributes, raw_quiz_results = self.query_database(results_table_name, [user_id])
-        # First two attributes in results are user_id and quiz_id. Not needed for Result object generation
-        quiz_attributes = quiz_attributes[2:]
-        # last item is scores, drop that as well
-        quiz_attributes = quiz_attributes[:len(quiz_attributes)-1]
+        potential_result = self.query_database(results_table_name, [user_id])
 
-        list_of_quiz_objects = []
-        for quiz in raw_quiz_results:
-            quiz_result_list = list(quiz)
+        if isinstance(potential_result, list):
+            quiz_attributes = potential_result[0]
+            raw_quiz_results = potential_result[1]
 
-            # First two attributes in quiz result list are values for user_id and quiz_id. Nab quiz_id then cull both.
-            quiz_id = quiz_result_list[1]
-            quiz_result_list = quiz_result_list[2:]
+            # First two attributes in results are user_id and quiz_id. Not needed for Result object generation
+            quiz_attributes = quiz_attributes[2:]
+            # last item is scores, drop that as well
+            quiz_attributes = quiz_attributes[:len(quiz_attributes)-1]
 
-            # Last item is the list of city results (if given), grab those too then cut them off.
-            quiz_cities = quiz_result_list[len(quiz_result_list)-1]
-            quiz_result_list = quiz_result_list[:len(quiz_result_list)-1]
+            list_of_quiz_objects = []
+            for quiz in raw_quiz_results:
+                quiz_result_list = list(quiz)
 
-            quiz_result_dict = {}
+                # First two attributes in quiz result list are values for user_id and quiz_id. Nab quiz_id then cull both.
+                quiz_id = quiz_result_list[1]
+                quiz_result_list = quiz_result_list[2:]
 
-            if len(quiz_result_list) == len(quiz_attributes):
-                for index in range(len(quiz_attributes)):
-                    quiz_result_dict[quiz_attributes[index]] = quiz_result_list[index]
+                # Last item is the list of city results (if given), grab those too then cut them off.
+                quiz_cities = quiz_result_list[len(quiz_result_list)-1]
+                quiz_result_list = quiz_result_list[:len(quiz_result_list)-1]
 
-                quiz_result_object = QuizResults(quiz_result_dict, quiz_id)
-                quiz_result_object.update_city_scores(quiz_cities)
+                quiz_result_dict = {}
 
-                list_of_quiz_objects.append(quiz_result_object)
-            else:
-                self.exit_with_error("Controller, Query_for_specific_user_all_quizzes(): Something went wrong and "
-                                     "the number of attributes do not match the number of data points retrieved")
-        return list_of_quiz_objects
+                if len(quiz_result_list) == len(quiz_attributes):
+                    for index in range(len(quiz_attributes)):
+                        quiz_result_dict[quiz_attributes[index]] = quiz_result_list[index]
+
+                    quiz_result_object = QuizResults(quiz_result_dict)
+                    quiz_result_object.update_city_scores(quiz_cities)
+                    quiz_result_object.update_quiz_id(quiz_id)
+                    list_of_quiz_objects.append(quiz_result_object)
+                else:
+                    self.exit_with_error("Controller, Query_for_specific_user_all_quizzes(): Something went wrong and "
+                                         "the number of attributes do not match the number of data points retrieved")
+            return list_of_quiz_objects
+        else:
+            return []
 
     def query_for_specific_user_quiz_id(self, user_id, quiz_id):
         results_table_name = "results"
@@ -180,7 +187,8 @@ class Controller(object):
         for index in range(len(quiz_attributes)):
             quiz_result_dict[quiz_attributes[index]] = quiz_results[index]
 
-        quiz_results_object = QuizResults(quiz_result_dict, quiz_id)
+        quiz_results_object = QuizResults(quiz_result_dict)
+        quiz_results_object.update_quiz_id(quiz_id)
 
         return quiz_results_object
 
@@ -205,7 +213,21 @@ class Controller(object):
         cursor.execute("INSERT INTO {0} {1} VALUES {2}".format(table_name, formatted_key_string, formatted_value_string))
 
     def store_new_quiz(self, user_id, quiz_results):
-        pass
+        results_table_name = "results"
+        # Ensure that what we get is a quiz result object
+        if isinstance(quiz_results, QuizResults):
+            # pull the parameter list and their corresponding values list for storage
+            quiz_results_parameters = quiz_results.return_storage_parameter_names()
+            quiz_results_values = quiz_results.return_storage_parameter_values()
+
+            # Quiz value lists don't come from the website with userID and QuizID, so add that here before shoving it
+            # into the database.
+            quiz_results_values[0] = user_id
+            # Find out how many quizzes the user's already done then add another 1 onto it for quiz ID.
+            num_user_quizzes = len(self.query_for_specific_user_all_quizzes(user_id))
+            quiz_results_values[1] = num_user_quizzes+1
+
+            self.store_in_database(results_table_name, quiz_results_parameters, quiz_results_values)
 
     @staticmethod
     def exit_with_error(error):
