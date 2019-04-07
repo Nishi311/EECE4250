@@ -16,7 +16,7 @@ class AlgorithmRunner(object):
     def run_module(self, current_quiz):
         if isinstance(current_quiz, QuizResults):
             self.all_city_data = self.controller.query_for_all_city_data()
-            current_quiz.set_city_scores(self.compute_results(current_quiz))
+            current_quiz.update_city_scores(self.compute_results(current_quiz))
         else:
             self.exit_with_error("algorithm, run_module(): object passed as current_quiz is NOT of class Quiz "
                                  "Answers.")
@@ -31,7 +31,7 @@ class AlgorithmRunner(object):
                 total_city_scores[city_name] = 0
 
             # Get the list of all the attributes that the quiz used.
-            attribute_weights = current_quiz.return_attribute_weights()
+            attribute_weights = current_quiz.return_calculation_attribute_set()
 
             for attribute_name in attribute_weights.keys():
                 # For each attribute used in the quiz, get the dict with every city's score for that attribute
@@ -40,19 +40,20 @@ class AlgorithmRunner(object):
                 # city score = (existing score) + (weight of current attribute) * (score for the city in current attribute)
                 # TODO: Get more fancy with this scoring system in the future.
                 for city_name in self.all_city_data:
-                    total_city_scores[city_name] += attribute_weights[attribute_name] * \
-                                                    attribute_scores_for_all_cities[city_name]
+                    total_city_scores[city_name] += attribute_weights[attribute_name] * attribute_scores_for_all_cities[city_name]
             # Sort the cities by total score from greatest to least and cut down to top X number of cities
             ordered_cities = sorted(total_city_scores.items(), key=lambda kv: kv[1], reverse=True)
             ordered_cities = ordered_cities[:self.num_cities_to_return]
 
-            # The final returned list of cities will actually be a tuple consisting of (city name, final city score, and
-            # The original city object complete with all its attribute values)
-            return_list = []
+            # The final returned list of cities will actually be a string of pattern:
+            # "[city name]:[city score], [city name]:[city score]"
+
+            return_string = ""
             for city_name, city_value in ordered_cities:
-                value_bundle = (city_name, city_value, self.all_city_data[city_name])
-                return_list.append(value_bundle)
-            return return_list
+                return_string += "{0}:{1}, ".format(city_name, city_value)
+            return_string = return_string.rsplit(", ", 1)[0]
+
+            return return_string
         else:
             self.exit_with_error("algorithm, compute_result(): object passed as current_quiz is NOT of class Quiz "
                                  "Answers.")

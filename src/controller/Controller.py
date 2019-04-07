@@ -2,7 +2,7 @@ import mysql.connector
 
 from src.helper_classes.user_profile import UserProfile
 from src.helper_classes.city_data import CityData
-
+from src.helper_classes.quiz_results import QuizResults
 
 class Controller(object):
 
@@ -10,12 +10,13 @@ class Controller(object):
         self.db_city_table_name = "city_index"
 
     @staticmethod
-    def query_database(table_name, object_name=None):
+    def query_database(table_name, object_info=None):
         """
         Quick query function to get all the data a given SQL database table.
         :param table_name: Name of the table to query in the SQL database.
-        :param object_name: Name of the specific object to query. If none given, will return all table entries in table
-                            Otherwise, will search for an entry in the table with this name and return only that entry.
+        :param object_info: (list): List of info necessary to query an object from the given table.. If none given, will
+                                    return all table entries in table. Otherwise, will search for an entry in the table
+                                    with the matching values and return only that entry.
         :return: {list<String>, list<Map>) ->  Tuple of the list of table labels and their values.
                        False -> Failed to acquire data from database.
         """
@@ -37,11 +38,19 @@ class Controller(object):
         for index, tuple in enumerate(table_labels_full):
             table_labels_min.append(tuple[0])
 
-        # If object_name designated, search for case insensitive string matches in correct column for the table.
-        if table_name == "city_index" and object_name:
-            cursor.execute("SELECT * FROM {0} WHERE city_name LIKE '{1}'".format(table_name, object_name))
-        elif table_name == "users" and object_name:
-            cursor.execute("SELECT * FROM {0} WHERE username LIKE '{1}'".format(table_name, object_name))
+        # If object_info designated, search for case insensitive string matches in correct column for the table.
+        if table_name == "city_index" and object_info:
+            cursor.execute("SELECT * FROM {0} WHERE city_name LIKE '{1}'".format(table_name, object_info[0]))
+        elif table_name == "users" and object_info:
+            cursor.execute("SELECT * FROM {0} WHERE user_id = '{1}'".format(table_name, object_info[0]))
+        elif table_name == "results":
+            if len(object_info) == 1:
+                cursor.execute("SELECT * FROM {0} WHERE user_id = '{1}'".format(table_name, object_info[0]))
+            elif len(object_info) == 2:
+                cursor.execute("SELECT * FROM {0} WHERE (user_id = '{1}' AND quiz_id = '{2}')".format(table_name,
+                                                                                                 object_info[0],
+                                                                                                 object_info[1]))
+
         # Gets the whole list of table entries in the following format (index, table data...):
         # e.g: [(1, 'New York', 89.2, 84.3, 28317.0, 67.7, 20320876.0, 1448.59, 538.9, 57.08),
         #       (2, 'Los Angeles', 67.4, 52.6, 8484.0, 55.1, 13353907.0, 2535.92, 761.31, 60.35),
@@ -93,9 +102,8 @@ class Controller(object):
 
     def query_for_specific_city_data(self, city_name):
         city_table_name = "city_index"
-
-        raw_city_attributes, raw_city_data = self.query_database(city_table_name, city_name)
-        raw_city_data = raw_city_data[0]
+        raw_city_attributes, raw_city_data = self.query_database(city_table_name, [city_name])
+        raw_city_data = list(raw_city_data[0])
         # For city table, first two attributes are city index and name, which we don't care about.
         processed_city_attributes = raw_city_attributes[2:]
 
@@ -106,20 +114,120 @@ class Controller(object):
 
         return city_data_object
 
-    def query_for_specific_user_data(self, username):
+    def query_for_specific_user_data(self, user_id):
         user_table_name = "users"
 
-        user_attributes, raw_user_data = self.query_database(user_table_name, username)
-        raw_user_data = raw_user_data[0]
-        # Create a list of proper CityData objects for consumption by other modules
-        username = raw_user_data[1]
-        password = raw_user_data[2]
-        email = raw_user_data[3]
-        quiz_histoy = raw_user_data[4]
+        user_attributes, raw_user_data = self.query_database(user_table_name, [user_id])
+        raw_user_data = list(raw_user_data[0])
 
-        user_profile_object = UserProfile(username, password, email, quiz_histoy)
+        username = raw_user_data[1]
+        email = raw_user_data[2]
+        password = raw_user_data[3]
+
+        user_profile_object = UserProfile(user_id, username, password, email)
+
+        list_of_user_quizzes = self.query_for_specific_user_all_quizzes(user_id)
+        for quiz in list_of_user_quizzes:
+            user_profile_object.add_new_quiz(quiz)
 
         return user_profile_object
+
+    def query_for_specific_user_all_quizzes(self, user_id):
+        results_table_name = "results"
+
+        potential_result = self.query_database(results_table_name, [user_id])
+
+        if isinstance(potential_result, list):
+            quiz_attributes = potential_result[0]
+            raw_quiz_results = potential_result[1]
+
+            # First two attributes in results are user_id and quiz_id. Not needed for Result object generation
+            quiz_attributes = quiz_attributes[2:]
+            # last item is scores, drop that as well
+            quiz_attributes = quiz_attributes[:len(quiz_attributes)-1]
+
+            list_of_quiz_objects = []
+            for quiz in raw_quiz_results:
+                quiz_result_list = list(quiz)
+
+                # First two attributes in quiz result list are values for user_id and quiz_id. Nab quiz_id then cull both.
+                quiz_id = quiz_result_list[1]
+                quiz_result_list = quiz_result_list[2:]
+
+                # Last item is the list of city results (if given), grab those too then cut them off.
+                quiz_cities = quiz_result_list[len(quiz_result_list)-1]
+                quiz_result_list = quiz_result_list[:len(quiz_result_list)-1]
+
+                quiz_result_dict = {}
+
+                if len(quiz_result_list) == len(quiz_attributes):
+                    for index in range(len(quiz_attributes)):
+                        quiz_result_dict[quiz_attributes[index]] = quiz_result_list[index]
+
+                    quiz_result_object = QuizResults(quiz_result_dict)
+                    quiz_result_object.update_city_scores(quiz_cities)
+                    quiz_result_object.update_quiz_id(quiz_id)
+                    list_of_quiz_objects.append(quiz_result_object)
+                else:
+                    self.exit_with_error("Controller, Query_for_specific_user_all_quizzes(): Something went wrong and "
+                                         "the number of attributes do not match the number of data points retrieved")
+            return list_of_quiz_objects
+        else:
+            return []
+
+    def query_for_specific_user_quiz_id(self, user_id, quiz_id):
+        results_table_name = "results"
+
+        quiz_attributes, raw_quiz_results = self.query_database(results_table_name, [user_id, quiz_id])
+        quiz_attributes = quiz_attributes[2:]
+
+        quiz_results = list(raw_quiz_results[0])
+
+        quiz_result_dict = {}
+        for index in range(len(quiz_attributes)):
+            quiz_result_dict[quiz_attributes[index]] = quiz_results[index]
+
+        quiz_results_object = QuizResults(quiz_result_dict)
+        quiz_results_object.update_quiz_id(quiz_id)
+
+        return quiz_results_object
+
+    @staticmethod
+    def store_in_database(table_name, insert_key_names, insert_values):
+        formatted_key_string = "({0})".format(", ".join(insert_key_names))
+        formatted_value_string = "("
+
+        for value in insert_values:
+            formatted_value_string += "\'{0}\', ".format(value)
+        formatted_value_string = formatted_value_string.rsplit(", ", 1)[0] + ")"
+
+
+        connection = mysql.connector.connect(host="yuppie-city-simulator-db.cohu57vlr7rd.us-east-2.rds.amazonaws.com",
+                                             user="MeanderingArma",
+                                             passwd="Dillos1999",
+                                             database="YCS")
+
+        cursor = connection.cursor()
+        test = "INSERT INTO {0} {1} VALUES {2}".format(table_name, formatted_key_string, formatted_value_string)
+        print(test)
+        cursor.execute("INSERT INTO {0} {1} VALUES {2}".format(table_name, formatted_key_string, formatted_value_string))
+
+    def store_new_quiz(self, user_id, quiz_results):
+        results_table_name = "results"
+        # Ensure that what we get is a quiz result object
+        if isinstance(quiz_results, QuizResults):
+            # pull the parameter list and their corresponding values list for storage
+            quiz_results_parameters = quiz_results.return_storage_parameter_names()
+            quiz_results_values = quiz_results.return_storage_parameter_values()
+
+            # Quiz value lists don't come from the website with userID and QuizID, so add that here before shoving it
+            # into the database.
+            quiz_results_values[0] = user_id
+            # Find out how many quizzes the user's already done then add another 1 onto it for quiz ID.
+            num_user_quizzes = len(self.query_for_specific_user_all_quizzes(user_id))
+            quiz_results_values[1] = num_user_quizzes+1
+
+            self.store_in_database(results_table_name, quiz_results_parameters, quiz_results_values)
 
     @staticmethod
     def exit_with_error(error):
