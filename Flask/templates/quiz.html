@@ -3,7 +3,6 @@
 <p>Please rate the following factors in terms of importance to you (10 being the most important, -10 being the least</p>
 
 <form class="quiz" id="quizForm" action="http://localhost:5000/quizResults" method="POST">
-
     <label>Walkability</label> <input type="number" id="walkability" name="walkability" min="-10" max="10" placeholder="0" value="{{ request.form.walkability }}">
     <br>
     <label>Ease of biking</label> <input type="number" id="bikeability" name="bikeability" min="-10" max="10" placeholder="0" value="{{ request.form.bikeability }}">
@@ -25,7 +24,5 @@
     <label>Most Sunshine</label> <input type="number" id="sunshine" name="sunshine" min="-10" max="10" placeholder="0" value="{{ request.form.sunshine }}">
     <br>
     <button id="submit_quiz" type="submit">View Results</button>
-
 </form>
-
 {% endblock %}

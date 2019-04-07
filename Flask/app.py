@@ -13,6 +13,7 @@ import webbrowser
 
 mysql = MySQL()
 controller = Controller()
+
 app = Flask(__name__)
 app.config["DEBUG"] = True
 app.secret_key = 'cowabunga'
@@ -37,6 +38,7 @@ def login_required(f):
 
 
 test_db = defaultdict(lambda: '')
+
 test_db['user_id'] = '10000'
 test_db['username'] = 'Yeezy'
 test_db['password'] = 'testword'
@@ -50,7 +52,17 @@ def home():
 
 @app.route('/data')
 def data():
-    return render_template("data.html")
+    try:
+        conn = mysql.connect()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        cursor.execute("SELECT * FROM city_index")
+        rows = cursor.fetchall()
+    except Exception as e:
+        print(e)
+    finally:
+        cursor.close()
+        conn.close()
+    return render_template("data.html", data=rows)
 
 
 @app.route('/quiz')
