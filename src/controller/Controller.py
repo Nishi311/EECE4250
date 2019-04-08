@@ -209,9 +209,22 @@ class Controller(object):
 
         cursor = connection.cursor()
         test = "INSERT INTO {0} {1} VALUES {2}".format(table_name, formatted_key_string, formatted_value_string)
-        print(test)
-        cursor.execute("INSERT INTO {0} {1} VALUES {2}".format(table_name, formatted_key_string, formatted_value_string))
-
+        f = open("log.txt","w+")
+        f.write(test)
+        f.close()
+        try:
+            cursor.execute("INSERT INTO {0} {1} VALUES {2}".format(table_name, formatted_key_string, formatted_value_string))
+        except MySQLdb.Error as e:
+            try:
+                f = open("mysqlerror.txt","w+")
+                f.write(e.args[0])
+                f.write(e.args[1])
+                f.close()
+            except IndexError:
+                f = open("mysqlindexerror.txt","w+")
+                f.write(str(e))
+                f.close()
+        connection.commit()
     def store_new_quiz(self, user_id, quiz_results):
         results_table_name = "results"
         # Ensure that what we get is a quiz result object

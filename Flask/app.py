@@ -137,7 +137,7 @@ def quiz_results():
             algo_runner = AlgorithmRunner()
             processed_quiz_results = algo_runner.run_module(raw_quiz_results)
             # TODO: Ask nick about how to get the actual user ID
-            # controller.store_new_quiz(99999, processed_quiz_results)
+            controller.store_new_quiz(9999, processed_quiz_results)
 
             city_scores_dict = defaultdict()
             city_names = []
@@ -177,7 +177,7 @@ def not_found(error=None):
 class BasicLauncher(object):
     @staticmethod
     def run_module():
-        webbrowser.get('windows-default').open("http://127.0.0.1:5000/")
+        webbrowser.get().open("http://127.0.0.1:5000/")
         app.run(host='127.0.0.1')
 
 # if __name__ == "__main__":
