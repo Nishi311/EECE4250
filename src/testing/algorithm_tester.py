@@ -10,38 +10,24 @@ class AlgorithmTester(unittest.TestCase):
         self.algorithm_runner = AlgorithmRunner()
         self.algorithm_runner.num_cities_to_return = 3
 
-    def test_compute_results(self):
+    def test_calculation(self):
         self.setup()
         mock_weights = {"walkability": 1, "sunshine": 10, "tech_jobs": 5}
         self.mock_quiz_results = QuizResults(mock_weights)
 
         attributes = ["walkability", "sunshine", "tech_jobs"]
         LA_attribute_scores = [3, 10, 6]
-        LA_data = CityData("Los Angeles", attributes, LA_attribute_scores)
+        LA_data = CityData(1, "Los Angeles", attributes, LA_attribute_scores)
 
         SanFran_attribute_scores = [4, 7, 10]
-        SanFran_data = CityData("San Fransisco", attributes, SanFran_attribute_scores)
+        SanFran_data = CityData(2, "San Fransisco", attributes, SanFran_attribute_scores)
 
         Boston_attribute_scores = [10, 5, 6]
-        Boston_data = CityData("Boston", attributes, Boston_attribute_scores)
+        Boston_data = CityData(3, "Boston", attributes, Boston_attribute_scores)
 
         mock_city_data = {"Los Angeles": LA_data, "San Francisco": SanFran_data, "Boston": Boston_data}
-        self.algorithm_runner.all_city_data = mock_city_data
-        self.algorithm_runner.all_city_names = mock_city_data.keys()
 
-        expected_results = "Los Angeles:133, San Francisco:124, Boston:90"
-        generated_results = self.algorithm_runner.compute_results(self.mock_quiz_results)
-        self.assertEqual(generated_results, expected_results)
+        expected_results = "Los Angeles:133.0, San Francisco:124.0, Boston:90.0"
+        generated_results_object = self.algorithm_runner.run_module(self.mock_quiz_results, mock_city_data)
+        self.assertEqual(expected_results, generated_results_object.print_cities())
 
-    def test_query(self):
-        self.setup()
-        self.algorithm_runner.query_database("city_index")
-        self.assertTrue(self.algorithm_runner.all_city_data)
-
-    def test_workflow(self):
-        self.setup()
-        mock_weights = {"walkability": 1, "transit": 10, "pop_density": 5, "bikeability": 1,
-                        "size": 10, "prop_crime": 5, "violent_crime": 1, "air_pollution": 10}
-        mock_quiz_results = QuizResults(mock_weights)
-        generated_results = self.algorithm_runner.run_module(mock_quiz_results)
-        self.assertTrue(generated_results)

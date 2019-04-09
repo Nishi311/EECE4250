@@ -5,9 +5,6 @@ from src.helper_classes.quiz_results import QuizResults
 class AlgorithmRunner(object):
 
     def __init__(self):
-        self.result_cities = {}
-        self.all_city_names = []
-        self.db_city_table_name = "city_index"
         self.num_cities_to_return = 5
 
     def run_module(self, current_quiz, all_city_data):
