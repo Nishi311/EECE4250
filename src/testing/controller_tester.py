@@ -14,6 +14,7 @@ class ControllerTester(unittest.TestCase):
         city_name = "New York"
 
         returned_object = self.controller.query_for_specific_city_data(city_name)
+
         self.assertEqual(city_name, returned_object.city_name)
 
     def test_all_user_query(self):

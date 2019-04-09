@@ -3,6 +3,7 @@ import mysql.connector
 from src.helper_classes.user_profile import UserProfile
 from src.helper_classes.city_data import CityData
 from src.helper_classes.quiz_results import QuizResults
+from src.algorithm.algorithm import AlgorithmRunner
 
 class Controller(object):
 
@@ -78,9 +79,10 @@ class Controller(object):
         # Create a list of proper CityData objects for consumption by other modules
         processed_city_data = {}
         for index, tuple in enumerate(raw_city_score_list):
+            city_index = tuple[0]
             city_name = tuple[1]
             attribute_scores = tuple[2:]
-            processed_city_data[city_name] = CityData(city_name, processed_city_attributes, attribute_scores)
+            processed_city_data[city_name] = CityData(city_index, city_name, processed_city_attributes, attribute_scores)
 
         return processed_city_data
 
@@ -108,9 +110,10 @@ class Controller(object):
         processed_city_attributes = raw_city_attributes[2:]
 
         # Create a list of proper CityData objects for consumption by other modules
+        city_id = raw_city_data[0]
         city_name = raw_city_data[1]
         attribute_scores = raw_city_data[2:]
-        city_data_object = CityData(city_name, processed_city_attributes, attribute_scores)
+        city_data_object = CityData(city_id, city_name, processed_city_attributes, attribute_scores)
 
         return city_data_object
 
@@ -201,16 +204,15 @@ class Controller(object):
             formatted_value_string += "\'{0}\', ".format(value)
         formatted_value_string = formatted_value_string.rsplit(", ", 1)[0] + ")"
 
-
         connection = mysql.connector.connect(host="yuppie-city-simulator-db.cohu57vlr7rd.us-east-2.rds.amazonaws.com",
                                              user="MeanderingArma",
                                              passwd="Dillos1999",
                                              database="YCS")
 
         cursor = connection.cursor()
-        test = "INSERT INTO {0} {1} VALUES {2}".format(table_name, formatted_key_string, formatted_value_string)
-        print(test)
+
         cursor.execute("INSERT INTO {0} {1} VALUES {2}".format(table_name, formatted_key_string, formatted_value_string))
+        connection.commit()
 
     def store_new_quiz(self, user_id, quiz_results):
         results_table_name = "results"
@@ -220,7 +222,7 @@ class Controller(object):
             quiz_results_parameters = quiz_results.return_storage_parameter_names()
             quiz_results_values = quiz_results.return_storage_parameter_values()
 
-            # Quiz value lists don't come from the website with userID and QuizID, so add that here before shoving it
+            # Quiz value lists don't come from the website with userID, so add that here before shoving it
             # into the database.
             quiz_results_values[0] = user_id
             # Find out how many quizzes the user's already done then add another 1 onto it for quiz ID.
@@ -228,6 +230,23 @@ class Controller(object):
             quiz_results_values[1] = num_user_quizzes+1
 
             self.store_in_database(results_table_name, quiz_results_parameters, quiz_results_values)
+
+    def run_quiz_workflow(self, attribute_dict):
+        raw_quiz_results_object = QuizResults(attribute_dict)
+
+        all_city_data = self.query_for_all_city_data()
+
+        processed_quiz_results = AlgorithmRunner().run_module(raw_quiz_results_object, all_city_data)
+        # TODO: Ask nick about how to get the actual user ID
+        self.store_new_quiz(9999, processed_quiz_results)
+
+        top_city_object_list = []
+        city_scores_dict = {}
+        for city_name, city_score in processed_quiz_results.return_city_scores():
+            top_city_object_list.append(self.query_for_specific_city_data(city_name).retrieve_all_city_data())
+            city_scores_dict[city_name] = int(city_score)
+
+        return [top_city_object_list, city_scores_dict]
 
     @staticmethod
     def exit_with_error(error):
