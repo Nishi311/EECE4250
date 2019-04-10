@@ -228,9 +228,6 @@ class Controller(object):
             # Quiz value lists don't come from the website with userID, so add that here before shoving it
             # into the database.
             quiz_results_values[0] = user_id
-            # Find out how many quizzes the user's already done then add another 1 onto it for quiz ID.
-            num_user_quizzes = len(self.query_for_specific_user_all_quizzes(user_id))
-            quiz_results_values[1] = num_user_quizzes+1
 
             if self.store_in_database(results_table_name, quiz_results_parameters, quiz_results_values):
                 return True
