@@ -4,7 +4,7 @@ walkability: index score, 0 to 100, 100 being best
 transit: index score, 0 to 100, 100 being best
 pop_density: people/sq mile
 bikeability: index score, 0 to 100, 100 being best
-metro_population: total population of city and surounding areas
+metro_pop: total population of city and surounding areas
 prop_crime: number of annual crimes/100,000 residents
 violent_crime: number of annual crimes/100,000 residents
 air_pollution: index score, 0 to 100, 100 being worst
