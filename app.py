@@ -15,7 +15,7 @@ mysql = MySQL()
 controller = Controller()
 
 app = Flask(__name__)
-app.config["DEBUG"] = True
+app.config["DEBUG"] = False
 app.secret_key = 'cowabunga'
 
 app.config['MYSQL_DATABASE_USER'] = "MeanderingArma"

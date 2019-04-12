@@ -41,7 +41,7 @@ class Controller(object):
             table_labels_min.append(tuple[0])
 
         # If object_info designated, search for case insensitive string matches in correct column for the table.
-        if table_name == "city_index" and object_info:
+        if (table_name == "city_index" or table_name == "city_index_raw") and object_info:
             cursor.execute(
                 "SELECT * FROM {0} WHERE city_name LIKE '{1}'".format(table_name, object_info[0]))
         elif table_name == "users" and object_info:
