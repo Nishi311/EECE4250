@@ -5,6 +5,7 @@ from src.helper_classes.city_data import CityData
 from src.helper_classes.quiz_results import QuizResults
 from src.algorithm.algorithm import AlgorithmRunner
 
+
 class Controller(object):
 
     def __init__(self):
@@ -41,16 +42,19 @@ class Controller(object):
 
         # If object_info designated, search for case insensitive string matches in correct column for the table.
         if table_name == "city_index" and object_info:
-            cursor.execute("SELECT * FROM {0} WHERE city_name LIKE '{1}'".format(table_name, object_info[0]))
+            cursor.execute(
+                "SELECT * FROM {0} WHERE city_name LIKE '{1}'".format(table_name, object_info[0]))
         elif table_name == "users" and object_info:
-            cursor.execute("SELECT * FROM {0} WHERE user_id = '{1}'".format(table_name, object_info[0]))
+            cursor.execute(
+                "SELECT * FROM {0} WHERE user_id = '{1}'".format(table_name, object_info[0]))
         elif table_name == "results":
             if len(object_info) == 1:
-                cursor.execute("SELECT * FROM {0} WHERE user_id = '{1}'".format(table_name, object_info[0]))
+                cursor.execute(
+                    "SELECT * FROM {0} WHERE user_id = '{1}'".format(table_name, object_info[0]))
             elif len(object_info) == 2:
                 cursor.execute("SELECT * FROM {0} WHERE (user_id = '{1}' AND quiz_id = '{2}')".format(table_name,
-                                                                                                 object_info[0],
-                                                                                                 object_info[1]))
+                                                                                                      object_info[0],
+                                                                                                      object_info[1]))
 
         # Gets the whole list of table entries in the following format (index, table data...):
         # e.g: [(1, 'New York', 89.2, 84.3, 28317.0, 67.7, 20320876.0, 1448.59, 538.9, 57.08),
@@ -65,13 +69,14 @@ class Controller(object):
             return table_labels_min, table_values
         else:
             print("algorithm, query_database(): No data acquired from database in table "
-                                 "{0}".format(table_name))
+                  "{0}".format(table_name))
             return False
 
     def query_for_all_city_data(self):
         city_table_name = "city_index"
 
-        raw_city_attributes, raw_city_score_list = self.query_database(city_table_name)
+        raw_city_attributes, raw_city_score_list = self.query_database(
+            city_table_name)
 
         # For city table, first two attributes are city index and name, which we don't care about.
         processed_city_attributes = raw_city_attributes[2:]
@@ -82,7 +87,8 @@ class Controller(object):
             city_index = tuple[0]
             city_name = tuple[1]
             attribute_scores = tuple[2:]
-            processed_city_data[city_name] = CityData(city_index, city_name, processed_city_attributes, attribute_scores)
+            processed_city_data[city_name] = CityData(
+                city_index, city_name, processed_city_attributes, attribute_scores)
 
         return processed_city_data
 
@@ -98,13 +104,18 @@ class Controller(object):
             password = tuple[2]
             email = tuple[3]
             quiz_histoy = tuple[4]
-            processed_user_data[username] = UserProfile(username, password, email, quiz_histoy)
+            processed_user_data[username] = UserProfile(
+                username, password, email, quiz_histoy)
 
         return processed_user_data
 
-    def query_for_specific_city_data(self, city_name):
-        city_table_name = "city_index"
-        raw_city_attributes, raw_city_data = self.query_database(city_table_name, [city_name])
+    def query_for_specific_city_data(self, city_name, table_name=None):
+        if table_name:
+            city_table_name = table_name
+        else:
+            city_table_name = "city_index"
+        raw_city_attributes, raw_city_data = self.query_database(
+            city_table_name, [city_name])
         raw_city_data = list(raw_city_data[0])
         # For city table, first two attributes are city index and name, which we don't care about.
         processed_city_attributes = raw_city_attributes[2:]
@@ -113,14 +124,16 @@ class Controller(object):
         city_id = raw_city_data[0]
         city_name = raw_city_data[1]
         attribute_scores = raw_city_data[2:]
-        city_data_object = CityData(city_id, city_name, processed_city_attributes, attribute_scores)
+        city_data_object = CityData(
+            city_id, city_name, processed_city_attributes, attribute_scores)
 
         return city_data_object
 
     def query_for_specific_user_data(self, user_id):
         user_table_name = "users"
 
-        user_attributes, raw_user_data = self.query_database(user_table_name, [user_id])
+        user_attributes, raw_user_data = self.query_database(
+            user_table_name, [user_id])
         raw_user_data = list(raw_user_data[0])
 
         username = raw_user_data[1]
@@ -129,7 +142,8 @@ class Controller(object):
 
         user_profile_object = UserProfile(user_id, username, password, email)
 
-        list_of_user_quizzes = self.query_for_specific_user_all_quizzes(user_id)
+        list_of_user_quizzes = self.query_for_specific_user_all_quizzes(
+            user_id)
         for quiz in list_of_user_quizzes:
             user_profile_object.add_new_quiz(quiz)
 
@@ -165,7 +179,8 @@ class Controller(object):
 
                 if len(quiz_result_list) == len(quiz_attributes):
                     for index in range(len(quiz_attributes)):
-                        quiz_result_dict[quiz_attributes[index]] = quiz_result_list[index]
+                        quiz_result_dict[quiz_attributes[index]
+                                         ] = quiz_result_list[index]
 
                     quiz_result_object = QuizResults(quiz_result_dict)
                     quiz_result_object.update_city_scores(quiz_cities)
@@ -181,7 +196,8 @@ class Controller(object):
     def query_for_specific_user_quiz_id(self, user_id, quiz_id):
         results_table_name = "results"
 
-        quiz_attributes, raw_quiz_results = self.query_database(results_table_name, [user_id, quiz_id])
+        quiz_attributes, raw_quiz_results = self.query_database(
+            results_table_name, [user_id, quiz_id])
         quiz_attributes = quiz_attributes[2:]
 
         quiz_results = list(raw_quiz_results[0])
@@ -202,7 +218,8 @@ class Controller(object):
 
         for value in insert_values:
             formatted_value_string += "\'{0}\', ".format(value)
-        formatted_value_string = formatted_value_string.rsplit(", ", 1)[0] + ")"
+        formatted_value_string = formatted_value_string.rsplit(", ", 1)[
+            0] + ")"
 
         connection = mysql.connector.connect(host="yuppie-city-simulator-db.cohu57vlr7rd.us-east-2.rds.amazonaws.com",
                                              user="MeanderingArma",
@@ -211,7 +228,8 @@ class Controller(object):
 
         cursor = connection.cursor()
         try:
-            cursor.execute("INSERT INTO {0} {1} VALUES {2}".format(table_name, formatted_key_string, formatted_value_string))
+            cursor.execute("INSERT INTO {0} {1} VALUES {2}".format(
+                table_name, formatted_key_string, formatted_value_string))
             connection.commit()
             return True
         except Exception:
@@ -249,10 +267,12 @@ class Controller(object):
         raw_quiz_results_object = QuizResults(attribute_dict)
         all_city_data = alternate_city_data if alternate_city_data else self.query_for_all_city_data()
 
-        processed_quiz_results = AlgorithmRunner().run_module(raw_quiz_results_object, all_city_data)
+        processed_quiz_results = AlgorithmRunner().run_module(
+            raw_quiz_results_object, all_city_data)
         # TODO: Ask nick about how to get the actual user ID
         if not self.store_new_quiz(9999, processed_quiz_results):
-            self.exit_with_error("Controller.py, run_quiz_workflow(): Failed to store quiz in database")
+            self.exit_with_error(
+                "Controller.py, run_quiz_workflow(): Failed to store quiz in database")
 
         top_city_object_list = []
         city_scores_dict = {}
@@ -260,7 +280,8 @@ class Controller(object):
             if alternate_city_data:
                 top_city_object_list.append(alternate_city_data[city_name])
             else:
-                top_city_object_list.append(self.query_for_specific_city_data(city_name).retrieve_all_city_data())
+                top_city_object_list.append(self.query_for_specific_city_data(
+                    city_name, "city_index_raw").retrieve_all_city_data())
             city_scores_dict[city_name] = int(city_score)
 
         return [top_city_object_list, city_scores_dict]
