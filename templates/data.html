@@ -11,28 +11,17 @@
 <table id="city_data" class="table table-striped table-bordered" cellspacing="0" width="100%">
     <thead>
         <tr>
-            <th class="th-sm">City
-            </th>
-            <th class="th-sm">Walkability
-            </th>
-            <th class="th-sm">Transit
-            </th>
-            <th class="th-sm">Population Density
-            </th>
-            <th class="th-sm">Bikeability
-            </th>
-            <th class="th-sm">Metro Population
-            </th>
-            <th class="th-sm">Property Crime
-            </th>
-            <th class="th-sm">Violent Crime
-            </th>
-            <th class="th-sm">Air Pollution
-            </th>
-            <th class="th-sm">Traffic
-            </th>
-            <th class="th-sm">Sunshine
-            </th>
+            <th class="th-sm">City</th>
+            <th class="th-sm">Walkability</th>
+            <th class="th-sm">Transit</th>
+            <th class="th-sm">Population Density</th>
+            <th class="th-sm">Bikeability</th>
+            <th class="th-sm">Metro Population</th>
+            <th class="th-sm">Property Crime</th>
+            <th class="th-sm">Violent Crime</th>
+            <th class="th-sm">Air Pollution</th>
+            <th class="th-sm">Traffic</th>
+            <th class="th-sm">Sunshine</th>
         </tr>
     </thead>
     <tbody>
@@ -58,6 +47,28 @@
 <script>
     $(document).ready(function () {
         $('#city_data').DataTable({
+            "initComplete": function (settings) {
+                $('#city_data thead th').each(function () {
+                    var $td = $(this);
+                    var headerText = $td.text();
+                    var headerTitle = $td.text();
+                    if (headerText == "Population Density")
+                        headerTitle = "people/sq mile";
+                    else if (headerText == "Property Crime" || headerText == "Violent Crime")
+                        headerTitle = "annual crimes/100k residents";
+                    else if (headerText == "Sunshine")
+                        headerTitle = "annual sunshine hours";
+
+                    $td.attr('title', headerTitle);
+                });
+
+                /* Apply the tooltips */
+                $('#city_data thead th[title]').tooltip(
+                    {
+                        "container": 'body'
+                    });
+            },
+
             "ordering": true,
             "paging": true,
             "order": [[0, "asc"]],

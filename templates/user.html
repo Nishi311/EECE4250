@@ -5,9 +5,9 @@
 
         <script src="/static/Javascript/user.js"></script>
 
-        <label>Username:</label>
+        <label>Name:</label>
         <positiontextbox>
-            <input type="text" name="fname" value="username" id="name" disabled="true" />
+            <input type="text" name="fname" value={{session['name']}} id="name" disabled="true" />
         </positiontextbox>
         <input type=button value="Edit" id="nameBtn" onclick="validate('name', 'nameBtn')"><a></a>
         <div class="spacer"></div><br>
@@ -18,7 +18,7 @@
         <div class="spacer"></div>
         <br>
         <label>Email:</label>
-        <input type="text" name="email" value="email" id="email" disabled="true" />
+        <input type="text" name="email" value={{session['email']}} id="email" disabled="true" />
         <input type=button value="Edit" id="emailBtn" onclick="validate('email', 'emailBtn')"><a></a>
         <div class="spacer"></div>
         <br>

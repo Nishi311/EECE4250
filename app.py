@@ -32,7 +32,7 @@ def login_required(f):
             return f(*args, **kwargs)
         else:
             flash('You need to login first!')
-            redirect(url_for('home'))
+            return redirect(url_for('home'))
 
     return wrap
 
@@ -55,7 +55,7 @@ def data():
     try:
         conn = mysql.connect()
         cursor = conn.cursor(pymysql.cursors.DictCursor)
-        cursor.execute("SELECT * FROM city_index")
+        cursor.execute("SELECT * FROM city_index_raw")
         rows = cursor.fetchall()
     except Exception as e:
         print(e)
@@ -85,6 +85,8 @@ def login():
 
         if email == test_db['email'] and password == test_db['password']:
             session['logged_in'] = True
+            session['email'] = email
+            session['name'] = "Test"
             flash('Login successful')
             return redirect(url_for('home'))
 
@@ -149,7 +151,7 @@ def quiz_results():
 
             conn = mysql.connect()
             cursor = conn.cursor(pymysql.cursors.DictCursor)
-            cursor.execute("SELECT * FROM city_index WHERE city_name IN ('{0}','{1}','{2}','{3}','{4}')".format(
+            cursor.execute("SELECT * FROM city_index_raw WHERE city_name IN ('{0}','{1}','{2}','{3}','{4}')".format(
                 city_names[0], city_names[1], city_names[2], city_names[3], city_names[4]))
             rows = cursor.fetchall()
             print(rows)
@@ -174,12 +176,6 @@ def not_found(error=None):
     return resp
 
 
-class BasicLauncher(object):
-    @staticmethod
-    def run_module():
-        webbrowser.get('windows-default').open("http://127.0.0.1:5000/")
-        app.run(host='127.0.0.1')
-
-# if __name__ == "__main__":
-#     webbrowser.get('windows-default').open("http://127.0.0.1:5000/")
-#     app.run(host='127.0.0.1')
+if __name__ == "__main__":
+    webbrowser.get().open("http://127.0.0.1:5000/")
+    app.run(host='127.0.0.1')
