@@ -1,27 +1,38 @@
 {% extends "base.html" %}
 {% block content %}
-<p>Please rate the following factors in terms of importance to you (10 being the most important, -10 being the least</p>
+<h3>Please rate the following factors in terms of importance to you (10 being the most important, -10 being the least)
+</h3>
 
 <form class="quiz" id="quizForm" action="http://localhost:5000/quizResults" method="POST">
-    <label>Walkability</label> <input type="number" id="walkability" name="walkability" min="-10" max="10" placeholder="0" value="{{ request.form.walkability }}">
+    <label>Walkability</label> <input type="number" id="walkability" name="walkability" min="-10" max="10"
+        placeholder="0" value="{{ request.form.walkability }}">
     <br>
-    <label>Ease of biking</label> <input type="number" id="bikeability" name="bikeability" min="-10" max="10" placeholder="0" value="{{ request.form.bikeability }}">
+    <label>Ease of biking</label> <input type="number" id="bikeability" name="bikeability" min="-10" max="10"
+        placeholder="0" value="{{ request.form.bikeability }}">
     <br>
-    <label>Public Transit</label> <input type="number" id="transit" name="transit" min="-10" max="10" placeholder="0" value="{{ request.form.transit }}">
+    <label>Public Transit</label> <input type="number" id="transit" name="transit" min="-10" max="10" placeholder="0"
+        value="{{ request.form.transit }}">
     <br>
-    <label>Low Car Traffic</label> <input type="number" id="traffic" name="traffic" min="-10" max="10" placeholder="0" value="{{ request.form.traffic }}">
+    <label>Low Car Traffic</label> <input type="number" id="traffic" name="traffic" min="-10" max="10" placeholder="0"
+        value="{{ request.form.traffic }}">
     <br>
-    <label>City Size (10=large)</label> <input type="number" id="metro_pop" name="metro_pop" min="-10" max="10" placeholder="0" value="{{ request.form.metro_pop }}">
+    <label>City Size (10=large)</label> <input type="number" id="metro_pop" name="metro_pop" min="-10" max="10"
+        placeholder="0" value="{{ request.form.metro_pop }}">
     <br>
-    <label>High Population Density</label> <input type="number" id="pop_density" name="pop_density" min="-10" max="10" placeholder="0" value="{{ request.form.pop_density }}">
+    <label>High Population Density</label> <input type="number" id="pop_density" name="pop_density" min="-10" max="10"
+        placeholder="0" value="{{ request.form.pop_density }}">
     <br>
-    <label>Low Property Crime</label> <input type="number" id="prop_crime" name="prop_crime" min="-10" max="10" placeholder="0" value="{{ request.form.prop_crime }}">
+    <label>Low Property Crime</label> <input type="number" id="prop_crime" name="prop_crime" min="-10" max="10"
+        placeholder="0" value="{{ request.form.prop_crime }}">
     <br>
-    <label>Low Violent Crime</label> <input type="number" id="violent_crime" name="violent_crime" min="-10" max="10" placeholder="0" value="{{ request.form.violent_crime }}">
+    <label>Low Violent Crime</label> <input type="number" id="violent_crime" name="violent_crime" min="-10" max="10"
+        placeholder="0" value="{{ request.form.violent_crime }}">
     <br>
-    <label>Low Air Pollution</label> <input type="number" id="air_pollution" name="air_pollution" min="-10" max="10" placeholder="0" value="{{ request.form.air_pollution }}">
+    <label>Low Air Pollution</label> <input type="number" id="air_pollution" name="air_pollution" min="-10" max="10"
+        placeholder="0" value="{{ request.form.air_pollution }}">
     <br>
-    <label>Most Sunshine</label> <input type="number" id="sunshine" name="sunshine" min="-10" max="10" placeholder="0" value="{{ request.form.sunshine }}">
+    <label>Most Sunshine</label> <input type="number" id="sunshine" name="sunshine" min="-10" max="10" placeholder="0"
+        value="{{ request.form.sunshine }}">
     <br>
     <button id="submit_quiz" type="submit">View Results</button>
 </form>
