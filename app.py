@@ -32,7 +32,7 @@ def login_required(f):
             return f(*args, **kwargs)
         else:
             flash('You need to login first!')
-            redirect(url_for('home'))
+            return redirect(url_for('home'))
 
     return wrap
 
@@ -55,7 +55,7 @@ def data():
     try:
         conn = mysql.connect()
         cursor = conn.cursor(pymysql.cursors.DictCursor)
-        cursor.execute("SELECT * FROM city_index")
+        cursor.execute("SELECT * FROM city_index_raw")
         rows = cursor.fetchall()
     except Exception as e:
         print(e)
@@ -85,6 +85,8 @@ def login():
 
         if email == test_db['email'] and password == test_db['password']:
             session['logged_in'] = True
+            session['email'] = email
+            session['name'] = "Test"
             flash('Login successful')
             return redirect(url_for('home'))
 
@@ -121,7 +123,8 @@ def quiz_results():
         for key, value in values_as_string_dict.items():
             values_as_int_dict[key] = 0 if value == "" else int(value)
 
-        top_city_object_list, city_scores_dict = controller.run_quiz_workflow(values_as_int_dict)
+        top_city_object_list, city_scores_dict = controller.run_quiz_workflow(
+            values_as_int_dict)
 
         return render_template('view_results.html', scores=city_scores_dict, data=top_city_object_list)
 
@@ -143,12 +146,6 @@ def not_found(error=None):
     return resp
 
 
-class BasicLauncher(object):
-    @staticmethod
-    def run_module():
-        webbrowser.get('windows-default').open("http://127.0.0.1:5000/")
-        app.run(host='127.0.0.1')
-
-# if __name__ == "__main__":
-#     webbrowser.get('windows-default').open("http://127.0.0.1:5000/")
-#     app.run(host='127.0.0.1')
+if __name__ == "__main__":
+    webbrowser.get().open("http://127.0.0.1:5000/")
+    app.run(host='127.0.0.1')
