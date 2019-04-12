@@ -1,9 +1,12 @@
 
 class CityData(object):
-    def __init__(self, city_name=None, attribute_names=None, attribute_values=None):
-        self.city_name = city_name if city_name else ""
-        self.attributes = {}
 
+    def __init__(self, city_id=None, city_name=None, attribute_names=None, attribute_values=None):
+
+        self.city_id = city_id if city_id else ""
+        self.city_name = city_name if city_name else ""
+
+        self.attributes = {}
         if attribute_names and attribute_values:
             if len(attribute_names) == len(attribute_values):
                 for index, val in enumerate(attribute_names):
@@ -11,9 +14,11 @@ class CityData(object):
             else:
                 self.exit_with_error("Number of attribute names and number of attribute values given do NOT match")
 
-
     def retrieve_all_city_data(self):
-        return self.attributes
+        return_dict = {"city_id": self.city_id, "city_name": self.city_name}
+        return_dict.update(self.attributes)
+
+        return return_dict
 
     def return_attribute_data(self, attribute_name):
         """

@@ -3,6 +3,7 @@ import mysql.connector
 from src.helper_classes.user_profile import UserProfile
 from src.helper_classes.city_data import CityData
 from src.helper_classes.quiz_results import QuizResults
+from src.algorithm.algorithm import AlgorithmRunner
 
 class Controller(object):
 
@@ -78,9 +79,10 @@ class Controller(object):
         # Create a list of proper CityData objects for consumption by other modules
         processed_city_data = {}
         for index, tuple in enumerate(raw_city_score_list):
+            city_index = tuple[0]
             city_name = tuple[1]
             attribute_scores = tuple[2:]
-            processed_city_data[city_name] = CityData(city_name, processed_city_attributes, attribute_scores)
+            processed_city_data[city_name] = CityData(city_index, city_name, processed_city_attributes, attribute_scores)
 
         return processed_city_data
 
@@ -108,9 +110,10 @@ class Controller(object):
         processed_city_attributes = raw_city_attributes[2:]
 
         # Create a list of proper CityData objects for consumption by other modules
+        city_id = raw_city_data[0]
         city_name = raw_city_data[1]
         attribute_scores = raw_city_data[2:]
-        city_data_object = CityData(city_name, processed_city_attributes, attribute_scores)
+        city_data_object = CityData(city_id, city_name, processed_city_attributes, attribute_scores)
 
         return city_data_object
 
@@ -201,16 +204,18 @@ class Controller(object):
             formatted_value_string += "\'{0}\', ".format(value)
         formatted_value_string = formatted_value_string.rsplit(", ", 1)[0] + ")"
 
-
         connection = mysql.connector.connect(host="yuppie-city-simulator-db.cohu57vlr7rd.us-east-2.rds.amazonaws.com",
                                              user="MeanderingArma",
                                              passwd="Dillos1999",
                                              database="YCS")
 
         cursor = connection.cursor()
-        test = "INSERT INTO {0} {1} VALUES {2}".format(table_name, formatted_key_string, formatted_value_string)
-        print(test)
-        cursor.execute("INSERT INTO {0} {1} VALUES {2}".format(table_name, formatted_key_string, formatted_value_string))
+        try:
+            cursor.execute("INSERT INTO {0} {1} VALUES {2}".format(table_name, formatted_key_string, formatted_value_string))
+            connection.commit()
+            return True
+        except Exception:
+            return False
 
     def store_new_quiz(self, user_id, quiz_results):
         results_table_name = "results"
@@ -220,14 +225,45 @@ class Controller(object):
             quiz_results_parameters = quiz_results.return_storage_parameter_names()
             quiz_results_values = quiz_results.return_storage_parameter_values()
 
-            # Quiz value lists don't come from the website with userID and QuizID, so add that here before shoving it
+            # Quiz value lists don't come from the website with userID, so add that here before shoving it
             # into the database.
             quiz_results_values[0] = user_id
-            # Find out how many quizzes the user's already done then add another 1 onto it for quiz ID.
-            num_user_quizzes = len(self.query_for_specific_user_all_quizzes(user_id))
-            quiz_results_values[1] = num_user_quizzes+1
 
-            self.store_in_database(results_table_name, quiz_results_parameters, quiz_results_values)
+            if self.store_in_database(results_table_name, quiz_results_parameters, quiz_results_values):
+                return True
+            else:
+                return False
+
+    def run_quiz_workflow(self, attribute_dict, alternate_city_data=None):
+        """
+        Runs the full quiz workflow from raw QuizResult object creation to algorithm calculation to result storage
+        to returning dictionaries required to run the UI pages.
+        :param attribute_dict: (Dict) -> [Attribute Name: Attribute Value] Key-Value pairs corresponding to user-given
+                                         weights for calculation.
+        :param alternate_city_data: (Dict) -> OPTIONAL: [City Name: City Object] Key-Value pairs if you don't want
+                                              to use the database stuff. Basically just for unit testing
+        :return: [list of city objects of top 5 cities, dict of [City Name: City Score] key-value pairs] These two
+                 items are all that's required to run the front end view results page.
+        """
+
+        raw_quiz_results_object = QuizResults(attribute_dict)
+        all_city_data = alternate_city_data if alternate_city_data else self.query_for_all_city_data()
+
+        processed_quiz_results = AlgorithmRunner().run_module(raw_quiz_results_object, all_city_data)
+        # TODO: Ask nick about how to get the actual user ID
+        if not self.store_new_quiz(9999, processed_quiz_results):
+            self.exit_with_error("Controller.py, run_quiz_workflow(): Failed to store quiz in database")
+
+        top_city_object_list = []
+        city_scores_dict = {}
+        for city_name, city_score in processed_quiz_results.return_city_scores():
+            if alternate_city_data:
+                top_city_object_list.append(alternate_city_data[city_name])
+            else:
+                top_city_object_list.append(self.query_for_specific_city_data(city_name).retrieve_all_city_data())
+            city_scores_dict[city_name] = int(city_score)
+
+        return [top_city_object_list, city_scores_dict]
 
     @staticmethod
     def exit_with_error(error):

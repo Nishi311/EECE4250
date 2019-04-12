@@ -49,7 +49,7 @@ class QuizResults(object):
                                  "of type dict.")
 
     def return_storage_parameter_names(self):
-        return_list = ["user_id", "quiz_id"]
+        return_list = ["user_id"]
 
         for name, value in self.attribute_weights.items():
             return_list.append(name)
@@ -58,7 +58,7 @@ class QuizResults(object):
         return return_list
 
     def return_storage_parameter_values(self):
-        return_list = [self.user_id, self.quiz_id]
+        return_list = [self.user_id]
         for name, value in self.attribute_weights.items():
             return_list.append(value)
         return_list.append(self.print_cities())

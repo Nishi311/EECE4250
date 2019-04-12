@@ -117,46 +117,16 @@ def create():
 @app.route('/quizResults', methods=['GET', 'POST'])
 def quiz_results():
     if request.method == 'POST':
-        weight_list = []
-        attribute_list = "walkability, " + "bikeability, " + "transit, " + "traffic, " + "metro_pop, " + \
-            "pop_density, " + "prop_crime, " + \
-            "violent_crime, " + "air_pollution, " + "sunshine"
-        attribute_list = attribute_list.split(", ")
-        print(attribute_list)
-        for factor in attribute_list:
-            weight_list.append(request.form[factor])
-        print(weight_list)
+        # Convert user input from request object into a dictionary that will drive a QuizResults object
+        values_as_string_dict = request.form.to_dict()
+        values_as_int_dict = {}
+        for key, value in values_as_string_dict.items():
+            values_as_int_dict[key] = 0 if value == "" else int(value)
 
-        if len(attribute_list) == len(weight_list):
-            combined_dict = {}
+        top_city_object_list, city_scores_dict = controller.run_quiz_workflow(
+            values_as_int_dict)
 
-            for index in range(len(attribute_list)):
-                combined_dict[attribute_list[index]
-                              ] = float(weight_list[index])
-
-            raw_quiz_results = QuizResults(combined_dict)
-
-            algo_runner = AlgorithmRunner()
-            processed_quiz_results = algo_runner.run_module(raw_quiz_results)
-            # TODO: Ask nick about how to get the actual user ID
-            # controller.store_new_quiz(99999, processed_quiz_results)
-
-            city_scores_dict = defaultdict()
-            city_names = []
-            for city_tuple in processed_quiz_results.return_city_scores():
-                city_scores_dict[city_tuple[0]] = int(city_tuple[1])
-                city_names.append(city_tuple[0])
-
-            print(city_names)
-
-            conn = mysql.connect()
-            cursor = conn.cursor(pymysql.cursors.DictCursor)
-            cursor.execute("SELECT * FROM city_index_raw WHERE city_name IN ('{0}','{1}','{2}','{3}','{4}')".format(
-                city_names[0], city_names[1], city_names[2], city_names[3], city_names[4]))
-            rows = cursor.fetchall()
-            print(rows)
-
-        return render_template('view_results.html', scores=city_scores_dict, data=rows)
+        return render_template('view_results.html', scores=city_scores_dict, data=top_city_object_list)
 
 
 @app.route('/test')
